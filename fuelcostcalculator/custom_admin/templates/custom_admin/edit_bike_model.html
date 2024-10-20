@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Bike Model</title>
+    <style>
+        body { 
+            background-color: #e0f7fa; 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 50px auto; 
+            padding: 20px; 
+            background: white; 
+            border-radius: 10px; 
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); 
+        }
+        h1 { 
+            text-align: center; 
+            color: #007bff; 
+        }
+        h2 { 
+            color: #333; 
+            margin-bottom: 15px; 
+        }
+        label { 
+            font-weight: bold; 
+            margin-top: 10px; 
+            display: block; 
+        }
+        input[type="text"], 
+        input[type="number"], 
+        select { 
+            width: 100%; 
+            padding: 10px; 
+            margin: 5px 0 20px; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+        }
+        input[type="file"] { 
+            margin: 5px 0 20px; 
+        }
+        button { 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 15px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            transition: background 0.3s; 
+            width: 100%; 
+        }
+        button:hover { 
+            background-color: #0056b3; 
+        }
+        .bike-image { 
+            max-width: 100%; 
+            height: auto; 
+            margin-bottom: 20px; 
+            border-radius: 5px; 
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
+        }
+        a { 
+            display: inline-block; 
+            margin-top: 20px; 
+            text-align: center; 
+            color: #007bff; 
+            text-decoration: none; 
+            font-weight: bold; 
+        }
+        a:hover { 
+            text-decoration: underline; 
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <h1>Edit Bike Model</h1>
+        
+        <!-- Display current bike image -->
+        {% if bike_model.image %}
+            <h2>Current Image:</h2>
+            <img src="{{ bike_model.image.url }}" alt="{{ bike_model.model_name }}" class="bike-image">
+        {% else %}
+            <p>No image available for this bike model.</p>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data">  <!-- Include enctype for file uploads -->
+            {% csrf_token %}
+            <label for="name">Model Name:</label>
+            <input type="text" name="model_name" value="{{ bike_model.model_name }}" required>
+
+            <label for="brand">Brand:</label>
+            <select name="brand" required>
+                {% for brand in bike_brands %}
+                    <option value="{{ brand.id }}" {% if brand.id == bike_model.brand.id %}selected{% endif %}>{{ brand.brand_name }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="fuel_efficiency">Fuel Efficiency:</label>
+            <input type="number" step="0.01" name="fuel_efficiency" value="{{ bike_model.fuel_efficiency }}" required>
+
+            <label for="image">Update Image (optional):</label>
+            <input type="file" name="image" accept="image/*">
+
+            <button type="submit">Update Model</button>
+        </form>
+        
+        <a href="{% url 'custom_admin:manage_bikes' %}">Back to Manage Bikes</a>
+    </div>
+    
+</body>
+</html>

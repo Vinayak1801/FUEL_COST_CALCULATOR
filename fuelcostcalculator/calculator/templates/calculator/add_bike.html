@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Bike - Fuel Cost Calculator</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, select:focus {
+            border-color: #007BFF;
+            outline: none;
+        }
+
+        .messages {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            list-style: none;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        /* Button Styling */
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #00be68;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #069fb0;
+            transform: scale(1.02);
+        }
+
+        /* Link Styling */
+        a {
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 20px;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #0056b3;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            button {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Add a New Bike</h2>
+
+        <!-- Display error messages, if any -->
+        <!-- {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="{{ message.tags }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %} -->
+
+        <!-- Add Bike Form -->
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Bike Brand Selection -->
+            <div class="form-group">
+                <label for="brand">Bike Brand:</label>
+                <select name="brand" id="brand" required>
+                    <option value="" disabled selected>Select a bike brand</option>
+                    {% for brand in brands %}
+                        <option value="{{ brand.id }}">{{ brand.brand_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Bike Model Selection (Populated dynamically based on brand) -->
+            <div class="form-group">
+                <label for="model">Bike Model:</label>
+                <select name="model" id="model" required>
+                    <option value="" disabled selected>Select a bike model</option>
+                </select>
+            </div>
+
+            <!-- Vehicle Number Input -->
+            <div class="form-group">
+                <label for="vehicle_number">Vehicle Number:</label>
+                <input type="text" id="vehicle_number" name="vehicle_number" placeholder="Enter vehicle number" required>
+            </div>
+
+            <!-- Exhaust Type Selection -->
+            <div class="form-group">
+                <label for="exhaust_type">Exhaust Type:</label>
+                <select name="exhaust_type" id="exhaust_type" required>
+                    <option value="" disabled selected>Select an exhaust type</option>
+                    <option value="Stock">Stock</option>
+                    <option value="Aftermarket">Aftermarket</option>
+                </select>
+            </div>
+
+            <!-- Air Filter Type Selection -->
+            <div class="form-group">
+                <label for="air_filter_type">Air Filter Type:</label>
+                <select name="air_filter_type" id="air_filter_type" required>
+                    <option value="" disabled selected>Select an air filter type</option>
+                    <option value="Stock">Stock</option>
+                    <option value="High Performance">High Performance</option>
+                </select>
+            </div>
+
+            <!-- Tire Size Input -->
+            <div class="form-group">
+                <label for="tire_size">Tire Size:</label>
+                <input type="text" id="tire_size" name="tire_size" required>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit">Add Bike</button>
+        </form>
+
+        <!-- Link to go back to the dashboard -->
+        <p><a href="{% url 'calculator:dashboard' %}">Back to Dashboard</a></p>
+
+    </div>
+
+    <!-- AJAX Script for Dynamic Dropdown -->
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("#brand").change(function(){
+                var brandId = $(this).val();
+                $.ajax({
+                    url: "{% url 'calculator:get_bike_models' %}",  // URL for fetching models
+                    data: {
+                        'brand_id': brandId
+                    },
+                    success: function(data){
+                        $("#model").html(data);  // Update the models dropdown
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

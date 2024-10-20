@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - Fuel Cost Calculator</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>Edit Your Profile</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="body_weight">Body Weight (kg):</label>
+                <input type="number" id="body_weight" name="body_weight" value="{{ profile.body_weight }}" required>
+            </div>
+            <button type="submit" class="btn">Update</button>
+        </form>
+        <p><a href="{% url 'calculator:dashboard' %}">Back to Dashboard</a></p>
+    </div>
+</body>
+</html>

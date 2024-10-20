@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Bike Models</title>
+    <style>
+        body { 
+            background-color: #e0f7fa; 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+        }
+        .navbar {
+            background-color: #00796b;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar h2 {
+            margin: 0; /* Remove default margin */
+            color: white;
+        }
+        .navbar .links {
+            margin-left: auto; /* Push links to the right */
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .navbar a:hover {
+            background-color: #004d40;
+        }
+        .container { 
+            margin: 50px auto; 
+            max-width: 800px; 
+            padding: 20px; 
+            background: white; 
+            border-radius: 10px; 
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); 
+        }
+        h1, h2 { 
+            text-align: center; 
+            color: #00796b; 
+        }
+        .form-container, .form-group { 
+            margin-bottom: 20px; 
+            padding: 15px; 
+            border: 1px solid #00796b; 
+            border-radius: 8px; 
+        }
+        input[type="text"], input[type="number"], select, input[type="file"] { 
+            width: calc(100% - 22px); 
+            padding: 10px; 
+            border: 1px solid #00796b; 
+            border-radius: 5px; 
+            font-size: 16px; 
+            margin-bottom: 10px; 
+        }
+        button { 
+            background-color: #00796b; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            transition: background-color 0.3s; 
+        }
+        button:hover { 
+            background-color: #004d40; 
+        }
+        .bike-model-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 10px; 
+            border: 1px solid #e0e0e0; 
+            border-radius: 5px; 
+            margin-bottom: 10px; 
+            background-color: #f9f9f9; 
+            transition: background-color 0.2s; 
+        }
+        .bike-model-item:hover { 
+            background-color: #e0f7fa; 
+        }
+        .bike-image { 
+            max-width: 80px; 
+            height: auto; 
+            margin-right: 10px; 
+            border-radius: 5px; 
+        }
+        .bike-model-item a { 
+            margin-left: 10px; 
+            color: #00796b; 
+            text-decoration: none; 
+            font-weight: bold; 
+        }
+        .bike-model-item a:hover { 
+            text-decoration: underline; 
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <h2>Admin Panel</h2>
+        <div class="links">
+            <a href="{% url 'custom_admin:admin_dashboard' %}">Dashboard</a>
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Manage Bike Models</h1>
+
+        <!-- Form to Add New Bike Model -->
+        <div class="form-container">
+            <h2>Add New Bike Model</h2>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" name="model_name" placeholder="Model Name" required>
+                </div>
+                <div class="form-group">
+                    <select name="brand" required>
+                        <option value="">Select Brand</option>
+                        {% for brand in bike_brands %}
+                            <option value="{{ brand.id }}">{{ brand.brand_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="number" name="fuel_efficiency" placeholder="Fuel Efficiency (km/l)" required>
+                </div>
+                <div class="form-group">
+                    <input type="file" name="image" accept="image/*">
+                </div>
+                <button type="submit">Add Model</button>
+            </form>
+        </div>
+
+        <!-- List of Existing Bike Models -->
+        <h2>Existing Bike Models</h2>
+        <ul>
+            {% for bike_model in bike_models %}
+            <li class="bike-model-item">
+                <div style="display: flex; align-items: center;">
+                    <!-- Display the image of the bike model -->
+                    {% if bike_model.image %}
+                        <img src="{{ bike_model.image.url }}" alt="{{ bike_model.model_name }}" class="bike-image">
+                    {% else %}
+                        <span>No image</span>
+                    {% endif %}
+                    <span>{{ bike_model.model_name }}</span>
+                </div>
+                <div>
+                    <a href="{% url 'custom_admin:edit_bike_model' bike_model.id %}">Edit</a>
+                    <a href="{% url 'custom_admin:delete_bike_model' bike_model.id %}">Delete</a>
+                </div>
+            </li>
+            {% empty %}
+            <li class="bike-model-item">No bike models found.</li>
+            {% endfor %}
+        </ul>
+
+        <!-- Form to Add New Brand -->
+        <h2>Add New Brand</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <input type="text" name="brand_name" placeholder="Brand Name" required>
+            </div>
+            <button type="submit">Add Brand</button>
+        </form>
+    </div>
+    
+</body>
+</html>

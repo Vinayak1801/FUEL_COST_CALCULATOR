@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Result - Fuel Cost Calculator</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        p {
+            font-size: 18px;
+            color: #555;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        strong {
+            color: #007BFF;
+        }
+
+        /* Button Styles */
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .button-group button {
+            background-color: #00be68;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .button-group button:hover {
+            background-color: #007BFF;
+        }
+
+        .button-group .cancel-btn {
+            background-color: #00be68;
+        }
+
+        .button-group .cancel-btn:hover {
+            background-color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Fuel Cost Result</h2>
+        <p><strong>Trip:</strong> {{ start_location }} to {{ end_location }}</p>
+        <p><strong>Distance:</strong> {{ distance }} km</p>
+        <p><strong>Total Fuel Cost:</strong> ₹{{ total_cost }}</p>
+        <p><strong>Rider Weight:</strong> {{ rider_weight }} kg</p>
+        <p><strong>Calculated Fuel Efficiency:</strong> {{ calculated_FE }} km/L</p>
+        
+        <!-- Ask user if they want to save the trip -->
+        <div class="button-group">
+            <form method="post" action="{% url 'calculator:save_trip' %}">
+                {% csrf_token %}
+                <input type="hidden" name="owner" value="{{ owner }}">
+                <input type="hidden" name="bike" value="{{ bike.id }}">
+                <input type="hidden" name="start_location" value="{{ start_location }}">
+                <input type="hidden" name="end_location" value="{{ end_location }}">
+                <input type="hidden" name="distance" value="{{ distance }}">
+                <input type="hidden" name="total_cost" value="{{ total_cost }}">
+                <input type="hidden" name="rider_weight" value="{{ rider_weight }}">
+                <input type="hidden" name="calculated_FE" value="{{ calculated_FE }}">
+                <button type="submit">Save Trip</button>
+            </form>
+            <a href="{% url 'calculator:calculate_fuel' %}">
+                <button class="cancel-btn">Calculate Another Trip</button>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculate Fuel Cost - Fuel Cost Calculator</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        /* Navigation Bar Styles */
+        nav {
+            background-color: #007BFF;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #0056b3;
+        }
+
+        /* Form Styles */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border-color: #007BFF;
+            outline: none;
+        }
+
+        /* Submit Button */
+        button {
+            background-color: #00be68;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #069fb0;
+            transform: scale(1.05);
+        }
+
+        /* Back Link */
+        p a {
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 20px;
+            transition: color 0.3s;
+        }
+
+        p a:hover {
+            background-color: #0056b3;
+        }
+
+        /* Map Styles */
+        #map {
+            height: 350px;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            nav {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="nav-links">
+            <a href="{% url 'calculator:dashboard' %}">Dashboard</a>
+            <a href="{% url 'calculator:add_bike' %}">Add Bike</a>
+            <a href="{% url 'calculator:view_bikes' %}">View Bikes</a>
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>Calculate Fuel Cost</h2>
+        <form method="post" action="{% url 'calculator:calculate_fuel' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="bike">Select a Bike:</label>
+                <select name="bike" id="bike" required onchange="updateFuelEfficiency()">
+                    <option value="" disabled selected>Select a bike</option>
+                    {% for bike in bikes %}
+                        <option value="{{ bike.id }}" data-efficiency="{{ bike.model.fuel_efficiency }}">
+                            {{ bike.model.model_name }} - {{ bike.vehicle_number }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="start_location">Starting Location:</label>
+                <input type="text" id="start_location" name="start_location" placeholder="Enter start location" required>
+            </div>
+
+            <div class="form-group">
+                <label for="end_location">Ending Location:</label>
+                <input type="text" id="end_location" name="end_location" required>
+            </div>
+
+            <div class="form-group">
+                <label for="map">Select Locations on Map:</label>
+                <div id="map"></div> <!-- Map for selecting start and end locations -->
+                <button type="button" onclick="useSelectedLocations()">Use Selected Locations</button>
+            </div>
+
+            <div class="form-group">
+                <label for="fuel_efficiency">Fuel Efficiency (km/L):</label>
+                <input type="number" id="fuel_efficiency" name="fuel_efficiency" step="0.1" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="user_weight">Your Weight (kg):</label>
+                <input type="number" id="user_weight" name="user_weight" value="60" min="30" required>
+            </div>
+            <button type="submit">Calculate</button>
+        </form>
+        <p><a href="{% url 'calculator:dashboard' %}">Back to Dashboard</a></p>
+    </div>
+
+    <script src="https://maps.gomaps.pro/maps/api/js?key=AlzaSySd6mOQXEqrTycBAPUbAri-aTAomUQ4O_v&libraries=places"></script>
+    <script>
+        let map;
+        let startMarker;
+        let endMarker;
+        let geocoder;
+
+        function initMap() {
+            // Initialize map centered on a default location
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 10.8299, lng: 76.0228 }, // Default center (e.g., MES Kuttipuram, India)
+                zoom: 14,
+            });
+
+            geocoder = new google.maps.Geocoder();
+
+            // Initialize start and end markers
+            startMarker = new google.maps.Marker({
+                map: map,
+                label: 'A',
+                draggable: true,
+            });
+
+            endMarker = new google.maps.Marker({
+                map: map,
+                label: 'B',
+                draggable: true,
+            });
+
+            // Click event for placing the start marker
+            google.maps.event.addListener(map, 'click', function (event) {
+                if (!startMarker.getPosition()) {
+                    placeStartMarker(event.latLng);
+                } else if (!endMarker.getPosition()) {
+                    placeEndMarker(event.latLng);
+                }
+            });
+
+            // Places Autocomplete for start and end locations
+            const startInput = document.getElementById("start_location");
+            const startAutocomplete = new google.maps.places.Autocomplete(startInput);
+
+            const endInput = document.getElementById("end_location");
+            const endAutocomplete = new google.maps.places.Autocomplete(endInput);
+        }
+
+        function placeStartMarker(location) {
+            startMarker.setPosition(location);
+            reverseGeocode(location, "start_location");
+        }
+
+        function placeEndMarker(location) {
+            endMarker.setPosition(location);
+            reverseGeocode(location, "end_location");
+        }
+
+        function reverseGeocode(location, inputId) {
+            geocoder.geocode({ location: location }, function (results, status) {
+                if (status === 'OK' && results[0]) {
+                    document.getElementById(inputId).value = results[0].formatted_address; // Set the place name in the input
+                }
+            });
+        }
+
+        function useSelectedLocations() {
+            if (!startMarker.getPosition() || !endMarker.getPosition()) {
+                alert("Please select both starting and ending locations.");
+                return;
+            }
+
+            // Use the marker positions (already reverse geocoded)
+            alert("Locations set. You can now submit the form.");
+        }
+
+        function updateFuelEfficiency() {
+            const bikeSelect = document.getElementById('bike');
+            const fuelEfficiencyInput = document.getElementById('fuel_efficiency');
+            
+            const selectedOption = bikeSelect.options[bikeSelect.selectedIndex];
+            const fuelEfficiency = selectedOption.getAttribute('data-efficiency');
+            
+            if (fuelEfficiency) {
+                fuelEfficiencyInput.value = fuelEfficiency;  // Set the fuel efficiency based on selected bike
+            }
+        }
+
+        // Load the map on window load
+        window.onload = initMap;
+    </script>
+</body>
+</html>

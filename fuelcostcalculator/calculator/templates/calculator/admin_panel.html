@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+</head>
+<body>
+    <h1>Admin Panel</h1>
+
+    <h2>Update Fuel Price</h2>
+    <form method="POST" action="{% url 'update_fuel_price' %}">
+        {% csrf_token %}
+        <input type="number" name="new_price" step="0.01" required>
+        <button type="submit">Update</button>
+    </form>
+
+    <h2>Manage Bike Models</h2>
+    <form method="POST" action="{% url 'manage_bike_models' %}">
+        {% csrf_token %}
+        <input type="text" name="model_name" required>
+        <button type="submit" name="action" value="add">Add Model</button>
+    </form>
+
+    <ul>
+        {% for model in bike_models %}
+            <li>
+                {{ model.name }}
+                <form method="POST" action="{% url 'manage_bike_models' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="model_id" value="{{ model.id }}">
+                    <button type="submit" name="action" value="delete">Delete</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

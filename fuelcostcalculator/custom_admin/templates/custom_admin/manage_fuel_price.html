@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Fuel Prices</title>
+    <style>
+        body { background-color: #fff3e0; font-family: Arial, sans-serif; }
+        .container { margin: 50px; }
+    </style>
+</head>
+<body>
+    
+    
+    <div class="container">
+        <h1>Manage Fuel Prices</h1>
+        <form method="post">
+            {% csrf_token %}
+            <input type="number" name="price" step="0.01" placeholder="Add fuel price">
+            <button type="submit">Add Price</button>
+        </form>
+        <ul>
+            {% for fuel_price in fuel_prices %}
+            <li>₹{{ fuel_price.price }} - Effective from {{ fuel_price.effective_date }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+</body>
+</html>

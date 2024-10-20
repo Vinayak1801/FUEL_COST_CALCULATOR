@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Admin Dashboard</title>
+    <style>
+        body { 
+            background-color: #f0f0f0; 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+        }
+        .container { 
+            margin: 50px auto; 
+            max-width: 800px; 
+            padding: 20px; 
+            background: white; 
+            border-radius: 10px; 
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); 
+        }
+        h1 { 
+            text-align: center; 
+            color: #007bff; 
+        }
+        h2 { 
+            color: #333; 
+            border-bottom: 2px solid #007bff; 
+            padding-bottom: 5px; 
+            margin-bottom: 15px; 
+        }
+        nav {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        nav a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: #d4e157; /* Lighter green color on hover */
+        }
+        ul {
+            list-style: none; 
+            padding: 0; 
+        }
+        li {
+            background: #e9ecef; 
+            margin: 10px 0; 
+            padding: 10px; 
+            border-radius: 5px; 
+            transition: background 0.3s;
+        }
+        li:hover {
+            background: #d1ecf1; /* Light blue on hover */
+        }
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <div>
+            <a href="{% url 'custom_admin:admin_dashboard' %}">Dashboard</a>
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Admin Dashboard</h1>
+        <h2>Manage</h2>
+        <ul>
+            <li><a href="{% url 'custom_admin:manage_bikes' %}">Manage Bikes</a></li>
+            <li><a href="{% url 'custom_admin:manage_fuel_price' %}">Manage Fuel Prices</a></li>
+        </ul>
+        <h2>Users</h2>
+        <ul>
+            {% for user in users %}
+            <li class="user-item">
+                <span>{{ user.username }}</span>
+                <span>{{ user.email }}</span>
+            </li>
+            {% empty %}
+            <li>No users found.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View All Trips - Fuel Cost Calculator</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul li {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            flex-direction: column;
+            transition: box-shadow 0.3s;
+        }
+
+        ul li:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+            margin: 5px 0;
+        }
+
+        strong {
+            color: #007BFF;
+        }
+
+        /* Back Link */
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+            padding: 10px 20px;
+            background-color: #00e288;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .back-link a:hover {
+            background-color: #00b3a1;
+            transform: scale(1.05);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            ul li {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>All Your Trip Details</h2>
+        <ul>
+            {% for trip in trips %}
+                <li>
+                    <p><strong>Bike Used:</strong> {{ trip.bike.model.brand.brand_name }} {{ trip.bike.model.model_name }}</p>
+                    <p><strong>From:</strong> {{ trip.start_location }} <strong>To:</strong> {{ trip.end_location }}</p>
+                    <p><strong>Distance:</strong> {{ trip.distance }} km</p>
+                    <p><strong>Total Fuel Cost:</strong> ₹{{ trip.fuel_cost }}</p>
+                    <p><strong>Rider Weight:</strong> {{ trip.rider_weight }} kg</p>
+                </li>
+            {% empty %}
+                <li>No trips recorded yet.</li>
+            {% endfor %}
+        </ul>
+
+        <div class="back-link">
+            <a href="{% url 'calculator:dashboard' %}">Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>
